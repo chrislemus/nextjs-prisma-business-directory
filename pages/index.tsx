@@ -1,3 +1,4 @@
+import { businessApi } from '@/api';
 import { Business } from '@prisma/client';
 import { GetServerSideProps } from 'next';
 import Link from 'next/link';
@@ -26,11 +27,7 @@ function HomePage(p: HomePageProps) {
 export const getServerSideProps: GetServerSideProps<
   HomePageProps
 > = async () => {
-  const res = await fetch('http://localhost:3000/api/business').then((res) =>
-    res.json()
-  );
-
-  const businesses: Business[] = res.data;
+  const businesses: Business[] = await businessApi.findMany();
   return { props: { businesses } };
 };
 

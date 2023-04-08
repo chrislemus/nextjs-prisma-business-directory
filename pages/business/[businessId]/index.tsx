@@ -1,3 +1,4 @@
+import { businessApi } from '@/api';
 import { Business } from '@prisma/client';
 import { GetStaticPaths, GetStaticProps } from 'next';
 
@@ -13,11 +14,12 @@ export default function Business(p: BusinessProps) {
   );
 }
 
-export const getStaticProps: GetStaticProps<BusinessProps> = async () => {
-  const res = await fetch('http://localhost:3000/api/business/1').then((res) =>
-    res.json()
-  );
-  const business = res.data;
+export const getStaticProps: GetStaticProps<
+  BusinessProps,
+  { businessId: string }
+> = async (ctx) => {
+  const businessId = Number(ctx.params?.businessId);
+  const business = await businessApi.findUnique(businessId);
 
   return {
     props: { business },
@@ -26,11 +28,7 @@ export const getStaticProps: GetStaticProps<BusinessProps> = async () => {
 };
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const businesses: Business[] = await fetch(
-    'http://localhost:3000/api/business'
-  )
-    .then((res) => res.json())
-    .then((res) => res.data);
+  const businesses: Business[] = await businessApi.findMany();
 
   const paths = businesses.map((biz) => {
     const businessId = `${biz.id}`;
